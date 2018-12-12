@@ -66,6 +66,39 @@ dim(churnTest) # test data
 
 
 
+## Unsuperivsed Learning
+
+As mentioned above, unsupervised learning is the most common route when there is no labeled data (which happens a lot), and the algorithm focuses on detecting structures within the unlabelled data.  There are two general types of UML:
+
+- Clustering: find homogeneous subgroups within the data, grouping is based on distance between observations
+- Dimensionality reduction: identify pattersn in the features of hte data.   This is usually done to allow the researcher to visualize the data or do pre-processing for supervised learning.
+
+One of the most challenging aspects of UML is that there is no single goal.
+
+### k-means clustering
+
+The goal of k-means clustering is to partion *n* observations into a fixd number of *k* clusters.  The algorithm works to find homogenous clusters given the parameters.
+
+the basic code is:
+```{r}
+# stats::kmeans(x, centers = 3, nstart = 10)
+```
+Where `x` is the data matrix, `centers` is the number of clusters, and `nstart` is hte random component that can be repeated a number of times to improve the returned model.  
+
+Let's try with the following:
+
+```{r}
+data(iris)
+iris_new <- iris[,1:4] # taking out the labeled data
+c1 <- kmeans(x = iris_new, 3, nstart = 10) 
+
+ggplot(data = iris_new) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(c1$cluster)), show.legend = FALSE) 
+```
+
+#### How does k-means clustering work?
+
+
 
 
 
