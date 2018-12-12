@@ -35,7 +35,38 @@ Gatto's workshop uses the following packages in R:
 - rpart.plot
 
 
-ENDED AT CHAPTER 3
+## Example Datasets:
+
+Iris:
+```{r}
+data(iris) # iris
+
+data(mtcars) # mtcars
+
+# sub-celllar localisation
+#https://github.com/lgatto/hyperLOPIT-csvs/
+
+
+library(tidyverse)
+data(diamonds) # diamonds dataset
+
+
+library(mlbench)
+data("Sonar") # used to train a classifer to recognise mines from rocks using sonar data.
+
+library("MASS")
+data(Boston) # bostom median home values 
+
+library("C50")
+data(churn) # samples of customer attrition
+dim(churnTrain) # training data
+dim(churnTest) # test data
+
+```
+
+
+
+
 
 
 
