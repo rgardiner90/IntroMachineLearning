@@ -1,0 +1,41 @@
+---
+title: "IntroMachineLearning"
+author: "Richard G. Gardiner"
+date: "12/11/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Part of this material is gathered from Laurent Gatto's workshop on ["An Introduction to Machine Learning with R"](https://github.com/rgardiner90/IntroMachineLearning.git)
+
+## Intro
+
+There are two main groups of machine learning: supervised and unsupervised.  Supervised machine learning (SML) is broken down into classification, where the DV is categorical, and regression, where the output is numerical.  SML is closely tied with "labeled data" which means each observation has an outcome that we are trying to model.  
+
+Unsupervised machine learning (UML) is used when there are no labels provided. Algorithms take data that doesn't have a layed out structure and tries to create its own structure.  There are also semi-supervised learning which uses a combination of labeled data to inform unlabeled data, and reinforcement learning which the learning algorithm "performs a task using feedback from operating in a real or synthetic environment".
+
+Gatto's workshop uses the following packages in R:
+
+- caret
+- ggplot2
+- mlbench
+- class
+- caTools
+- randomForest
+- impute
+- ranger
+- kernlab
+- class
+- glmnet
+- naivebayes
+- rpart
+- rpart.plot
+
+
+ENDED AT CHAPTER 3
+
+
+
