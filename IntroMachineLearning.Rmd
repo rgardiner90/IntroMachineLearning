@@ -92,14 +92,112 @@ data(iris)
 iris_new <- iris[,1:4] # taking out the labeled data
 c1 <- kmeans(x = iris_new, 3, nstart = 10) 
 
-ggplot(data = iris_new) +
-  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(c1$cluster)), show.legend = FALSE) 
+a <- ggplot(data = iris_new) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(c1$cluster)), show.legend = FALSE) +
+  labs(title = "Clusters after using kmeans()")
+a
 ```
 
 #### How does k-means clustering work?
 
+Step 1: initialization: randomly assign class membership
+
+```{r}
+set.seed(12) 
+init <- sample(3, nrow(iris_new), replace = TRUE)
+b <- ggplot(data = iris_new) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(init)), show.legend = FALSE) +
+  labs(title = "k-means random initialization")
+```
+
+Step 2: iterate
+
+1 Calculate the center of each subgroup as the average position of all observations in that subgroup.
+2 Each observation is then assigned to the group of its nearest center.
+
+It is also possible to stop the algorithm after a certain number of iterations, or once the centers move less than a certain distance:
+
+```{r, fig.height = 4, fig.width=4}
+centers <- sapply(1:3, function(i) colMeans(iris_new[init == i, ])) # creates a function that gathers the column mean for each column
+centers <- t(centers) # transposes the results
+
+tmp <- dist(rbind(centers, iris_new)) # dist() calculates the distance matrix
+tmp <- as.matrix(tmp)[, 1:3] # converts the tmp into a matrix (keeps all rows and columms 1-3)
+# it must be 3 columns because we picked 3 clusters earlier
 
 
+# this one returns the column index where there is a minimum value and appplies does so for every row
+# basically this finds out which cluster minimizes the distance between cluster and observation
+ki <- apply(tmp, MARGIN = 1, FUN = which.min) 
+# margin = 1 applies function to row, margin = 2 applies function to columns. 
+# note: when MARGIN = c(1,2) it applies to both rows and columns
 
+
+# gets rid of the first 3 rows (now it fits with the length of the iris_new length)
+# I believe the first 3 is kind of like an identity matrix, which is why we got rid of them
+ki <- ki[-(1:3)]
+
+c <- ggplot(data = iris_new) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(ki)), show.legend = FALSE) +
+  labs(title = "Results after doing clustering by hand")
+
+gridExtra::grid.arrange(a, b, c)
+```
+
+#### Model Selection
+
+Random initialization can lead to different clustering results.  When k=means is run multiple times, the best outcome (the one with the smallest total within cluster sum of squares) is selected.  The total within sum of squares is caculatd as, for each cluster, calculated the squared euclidean distance from observation to the center of the cluster for each observation.  Total all distances.
+
+That lowest within cluster sum of squares is called the local minimum, though we might not be able to get a global minimum.
+
+Run multiple kmeans on the data with more than 1 iteration and see if you get the same reulsts:
+```{r}
+c2 <- kmeans(x = iris_new, 3, nstart = 10) # iteration = 10
+c3 <- kmeans(x = iris_new, 3, nstart = 10) 
+
+# combining the results of the two clusters 
+table(c2$cluster, c3$cluster) # gives it different names, but same results
+```
+
+Now do the same with only 1 iteration:
+
+```{r}
+c4 <- kmeans(x = iris_new, 3, nstart = 1) # iteration = 10
+c5 <- kmeans(x = iris_new, 3, nstart = 1) 
+
+# combining the results of the two clusters 
+table(c4$cluster, c5$cluster) # gives it different names, but same results
+```
+
+
+#### How to determine the number of clusters
+
+Simple steps:
+
+1 run k-means at different levels of clustering
+2 Reocrd the toal within sum of squares for each clustering
+3 CLoose k at the *elbow* position (imagine an arm, find the elbow and that is the best)
+
+The elbow is kind of a soft rule.  To me it seems like where you start getting real diminishing returns
+
+Do clustering ranging from 1-10 and then plot them to spot the elbow:
+```{r}
+k <- 1:10
+
+clustering <- sapply(k, function(i) {
+  cl <- kmeans(x = iris_new, i, nstart = 10)
+  cl$tot.withinss
+})
+
+elbow <- cbind(k, clustering)
+elbow <- as.data.frame(elbow)
+
+ggplot(elbow) +
+  geom_line(aes(x = k, y = clustering)) +
+  geom_point(aes(x = k, y = clustering)) +
+  scale_x_discrete(limits = c(0:10))
+```
+
+Looks like it could be 3 or 4 here (though we know that 3 is likely the best)
 
 
