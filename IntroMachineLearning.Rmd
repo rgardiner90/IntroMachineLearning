@@ -201,3 +201,74 @@ ggplot(elbow) +
 Looks like it could be 3 or 4 here (though we know that 3 is likely the best)
 
 
+## Hierarchical Clustering
+
+How does it work?  First it starts by assigning each of the n point its own cluster.  Then it iterates.  FIrst it finds the two nearest clusters and joins the together.  This leads to n-1 clusters.  Then they continue merging clusters until all are grouped into a single cluster.
+
+The results of hierarchical clustering are typically shown along with a dendogram wehre hte distance between the clusters is proportional to the branch length.
+
+How to do this in R?
+
+1 Calculate the distance using `dist`, typically the Euclidean distance.
+2 Hierarchical clustering on this distance matrix using hclust
+
+```{r}
+iris_dist <- dist(iris[, 1:4])
+hcl <- hclust(iris_dist)
+hcl
+
+plot(hcl)
+```
+
+
+After we have produced the results, we need to *cut the tree (dendogram)* at a specific heigh to define the clusters.  In the example above, we could decide to cut 
+
+1 around a speicific height, like 1.5.
+2 to get a certain number of clusters, k = 2 for instance
+
+All of this is done with the cutree function
+
+```{r}
+plot(hcl)
+abline(h = 3.9, col = "red")
+
+cutree(hcl, h = 3.9) # h = height
+cutree(hcl, k = 3) # k = number of clusters
+
+identical(cutree(hcl, h = 3.9), cutree(hcl, k = 3))
+```
+
+Now, using the `k = 3` value, verify if k-means and hierarchical clustering produce the same results on the `iris` dataset.
+
+```{r}
+km <- kmeans(iris[,1:4], center = 3, nstart = 10)
+hcl <- hclust(dist(iris[,1:4]))
+
+table(km$cluster, cutree(hcl, k =3)) # get some difference with 2 and 3 groupings
+```
+
+
+Now let's graph the two:
+```{r}
+d <- ggplot(data = iris) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(km$cluster)), show.legend = FALSE) +
+  labs(title = "k-means")
+
+e <- ggplot(data = iris) +
+  geom_point(aes(x = Sepal.Length, y = Petal.Length, colour = factor(cutree(hcl, k = 3))), show.legend = FALSE)  +
+  labs(title = "Hierarchical")
+
+gridExtra::grid.arrange(d, e)
+```
+
+
+We can see that the hierarchical has a much larger group 3 than the k-means, but let's do a simple check (since we have labeled data)
+
+```{r}
+table(iris$Species, km$cluster) # does really good with the first cluster, okay with vericolor, and not great with virginica
+```
+
+```{r}
+table(iris$Species, cutree(hcl, k = 3)) # this does really well with setosa and virginica, but poorly with veriscolor
+```
+
