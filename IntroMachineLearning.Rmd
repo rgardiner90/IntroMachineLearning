@@ -272,3 +272,35 @@ table(iris$Species, km$cluster) # does really good with the first cluster, okay 
 table(iris$Species, cutree(hcl, k = 3)) # this does really well with setosa and virginica, but poorly with veriscolor
 ```
 
+
+## Pre-processing
+
+Both unsupervised and supervised ML is sensitive to differnt scales.  A typical way to pre-process the data is to scale it or apply principal component analysis (next section).  Scaling means that all the columns will have a mean of 0 and a standard deviation of 1.  Scaling can be done with the `scale` function.  
+
+Example: use the `scale` function to scale the data in mtcars.  Run hierarchical clustering on both the original and the scaled to see how that changes the output.
+
+```{r}
+summary(mtcars) # definitely different means
+
+mtcars_scaled <- scale(mtcars)
+
+summary(mtcars_scaled)
+```
+
+```{r}
+mtcars_hcl <- hclust(dist(mtcars))
+
+
+mtcars_scaled_hcl <- hclust(dist(mtcars_scaled))
+
+par(mfrow = c(1, 2))
+plot(mtcars_hcl, main = "original")
+plot(mtcars_scaled_hcl, main = "scaled")
+```
+
+
+There are clear differneces between the two.
+
+
+
+
