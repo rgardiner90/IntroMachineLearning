@@ -1,5 +1,5 @@
 ---
-title: "IntroMachineLearning"
+title: "Intro to Machine Learning"
 author: "Richard G. Gardiner"
 date: "12/11/2018"
 output: html_document
@@ -273,6 +273,10 @@ table(iris$Species, cutree(hcl, k = 3)) # this does really well with setosa and 
 ```
 
 
+### Hierarchical v. K-means
+
+There are obvious advantages for each one.  K-means is generally faster than hierarchical clustering, for instance.  My read of the profession, though,  hierarchical clustering is is favored, all else equal.  Hierarchical doesn't require stating at the beginning how many clusters you want.  You can decide after the fact.  K-means also has a lot of assumptions about the distribution of the data, and is more sensitive to outliers.  
+
 ## Pre-processing
 
 Both unsupervised and supervised ML is sensitive to differnt scales.  A typical way to pre-process the data is to scale it or apply principal component analysis (next section).  Scaling means that all the columns will have a mean of 0 and a standard deviation of 1.  Scaling can be done with the `scale` function.  
@@ -299,8 +303,70 @@ plot(mtcars_scaled_hcl, main = "scaled")
 ```
 
 
-There are clear differneces between the two.
+There are clear differences between the two.  As the same suggests, pre-processing is done as a preliminary practice that will make later analysis more efficient.  The method of scaling is only one way to pre-process the data (also called normalization).  Other techniques includes data: cleaning, instance selection, transofrmation, feature extration, and selection.  Cleaning is fixing bad values (i.e. men can't be pregnant but the raw data may have that).  Feature extraction will be covered more (I believe) in the Principal Components Analysis section.  
 
 
+## Principal Component Analysis (PCA)
+
+PCA is widely used (and considered very versitile) that is used for: finding strucutre in features, pre-processing, and aiding in visualization.  THe basic idea behind deminsionality reduction is to transform the data into a new space that "summarise properties of the whole dataset along a reduced number of dimensions.  These are the nidela candidates to visualize the data laong these reduced number of informative dimensions."
+
+### How Does it work?
+
+PCA is a technique that transofrms the original n-dimensional data into a new n-dimensional space.
+
+- These new dimension are linear combinations of the original data (meaning they are composed of proportions of the original variables)
+- Along tehse new dimensions, called **principal components**, the data expresses most of its variablility along the first PC, then second, ...
+- Principal components are orthogonal to each other (not correlated).
+
+
+#### Example
+
+using the iris data again, we can see that while it only contains 4 variables, it is already confusing to visualize the three groups along these dimensions (never mind the dozen+ variables that are common in research).
+
+```{r}
+plot(iris[, -5], col = iris$Species)
+```
+
+
+We can use `prcomp` to reduce the number of dimensions:
+
+```{r}
+iris_pca <- prcomp(iris[, -5]) # not doing this with the species variable
+
+summary(iris_pca)
+```
+
+This summary shows us that along PC1 alone, we are able to retain 92% of hte total variability in the data.
+
+Now we can visualize the results.  A biplot shows all of hte original points re=mapped (rotated) along the first two PCs as well as the original features as vectors along the same PCs.  Feature vectors that are in teh same idrection in PC space are also correlated in the original data space.  
+
+```{r}
+biplot(iris_pca)
+```
+
+
+NOTE: one important piece of PCa is that proportion of vairance explained along the PCs, in particular when dealing with high dimensional data, as PC1 and PC2 (which are generally used for visualization), might only account for an insufficient proportion of variance to be relevant on their own.  
+
+We can extract the standard deviations from the PCA result to calculated the variances, then obtain a percentage of and cumulative variance along the PCs.
+
+```{r}
+var <- iris_pca$sdev^2
+
+pve <- var/sum(var)
+pve
+
+cumsum(pve) 
+```
+
+
+```{r}
+par(mfrow = c(1, 2))
+plot(iris_pca$x[, 1:2], col = iris$Species)
+plot(iris_pca$x[, 3:4], col = iris$Species)
+```
+
+### Notes on PCA
+
+PCA cannot deal with missing values which means it will simply drop those values.  That may not be a problem if the proportion of missing data is small, but it should be considered.  Second, be careful of using UML with categorical data because the computer will generally assume the interger provided to represent the category actually has some meaning (i.e., there is ordering and distance matters). You should either drop them before doing UML or create dummy variables.
 
 
