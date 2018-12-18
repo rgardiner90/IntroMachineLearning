@@ -438,3 +438,78 @@ Scaling does reduce the range in the x and y axes which is nicer, but it probabl
 ```{r}
 plot(iris_tsne7$Y, col = unique_iris$Species)
 ```
+
+
+
+
+## Supervised Learning
+
+The difference between Unsupervised machine learning (UML) versus Supervised machine learning (SML) is that SML has labelled example inputs, which indicate the desired output (basically the DV).  There are two main groups of Supervised Machine Learning:
+
+- Classification: the output is qualitative
+- Regression: the output is quantitative
+
+### K nearest neighbors (kNN)
+
+Let's use a common SML algorithm, k nearest neighbors, to classify the iris flower dataset.  To do this you will use the `knn` function from the class package.  KNN works by directly measuring the euclidean distance beteen observations and infer the class of unlabelled data from teh class of its nearest neighbor.
+
+In most ML processes there are two steps: train and predict.  In KNN these two steps are combined into a single function called `knn`.  
+
+Let's draw a set of 50 random iris observations to train the moel and predict the species of another set of 50 randomly chosen flowers.  The `knn` function takes the training data, the new data (to be inferred) and the labels of the training data, and returns (be default) the predicted class.
+
+```{r}
+set.seed(12)
+
+train <- sample(150, 50)
+new <- sample(150, 50)
+
+library("class")
+
+knnres <- knn(iris[train, -5], iris[new, -5], iris$Species[train])
+head(knnres)
+
+```
+
+Now we can compare the observed KNN-predicted class and the expected known outcome and calculate the over accuracy of the model.
+
+```{r}
+table(knnres, iris$Species[new])
+```
+
+```{r}
+mean(knnres == iris$Species[new])
+```
+
+
+Both of these show that the model does a pretty great job of classifying the data.  
+
+One key argument we have omitted from hte `knn` function is the parameter *k*.  The value *k* defines how many nearest neighbors will be considered to assign a class to a new unlabelled observation.  We can look at the arguments for a function by doing the following:
+
+```{r}
+args(knn)
+```
+
+As we can see, the default for *k* is 1.  But is this a good value?  Would we prefer to look at more neighbors and infer the new clas using a vote based on more lables?
+
+#### Challenge
+
+run the knn again but with a different value for k.  Use the same data as before to avoid any biases in comparison
+
+```{r}
+knnres_2 <- knn(iris[train, -5], iris[new, -5], iris$Species[train], k = 5)
+```
+
+Now let's see how this new model did compared to the old.
+```{r}
+table(knnres_2, iris$Species[new])
+
+mean(knnres_2 == iris$Species[new])
+```
+
+A k = 5 did slightly worse than our k = 1.  Now lets try the same model, but with a `prob = TRUE` to obtain the proportion of the votes for the winning class:
+
+```{r}
+knnres_3 <- knn(iris[train, -5], iris[new, -5], iris$Species[train], k = 5, prob = TRUE)
+
+table(attr(knnres_3, "prob"))
+```
