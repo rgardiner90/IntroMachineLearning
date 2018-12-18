@@ -370,3 +370,71 @@ plot(iris_pca$x[, 3:4], col = iris$Species)
 PCA cannot deal with missing values which means it will simply drop those values.  That may not be a problem if the proportion of missing data is small, but it should be considered.  Second, be careful of using UML with categorical data because the computer will generally assume the interger provided to represent the category actually has some meaning (i.e., there is ordering and distance matters). You should either drop them before doing UML or create dummy variables.
 
 
+
+## t-Distributed Stochastic Neighbor Embedding
+
+
+The t-Distributed Stochastic Neighbour Embedding (t-SNE) is a non-linear dimensionality reduction technique, that different regions of the data space will be sujbected to different transformations.  T-SNE will compress small distances, thus bringing close neighbr together, and will ignore distances.  **It is particularly well suited for very high dimensional data**. t-SNE is especially popular in machine learning because it is very effective at creating impressive two-dimensional "maps" from data with hundreds or even thousands of dimensions, [see this link for more information](https://distill.pub/2016/misread-tsne/). 
+
+In R, we can use the `Rtsne` function from the `Rtsne` package.  First, though, we have to remove any duplicates.
+
+```{r}
+library(Rtsne)
+
+unique_iris <- unique(iris[, 1:5])
+
+irist_tsne <- Rtsne(unique_iris[, 1:4])
+
+plot(irist_tsne$Y, col = unique_iris$Species)
+```
+
+If we wanted to, we could have centered and scaled the data before running the t-SNE function (see the `pca_center` and `pca_scale` arguments).  This algorithm is stochastic, and will producedifferent results for each repeition.
+
+### Parameter tuning
+
+While t-SNE is popular, it can be confusing to properly set and interpret the model.  Part of this comes from the parameter tuining.  t-SNE have two important parameters that can substantialy influence the clustering of data:
+
+- Perplexity: balancing global and local aspects of the data
+- Iterations: number of iterations before the clustering is stopped.
+
+Let's see what happens when we change these parameters a bit
+```{r}
+iris_tsne1 <- Rtsne(unique_iris[, 1:4], perplexity = 5)
+iris_tsne2 <- Rtsne(unique_iris[, 1:4], perplexity = 10)
+iris_tsne3 <- Rtsne(unique_iris[, 1:4], perplexity = 30)
+
+# different levels of perplexity
+par(mfrow = c(2, 2))
+plot(iris_tsne1$Y, col = unique_iris$Species)
+plot(iris_tsne2$Y, col = unique_iris$Species)
+plot(iris_tsne3$Y, col = unique_iris$Species)
+```
+
+Now that we have seen what happens when you change the perplexity, let's see what happens when you change the number of iterations for the one that seemed to perform the best (perplexity of 30)
+```{r}
+iris_tsne4 <- Rtsne(unique_iris[, 1:4], perplexity = 30, max_iter = 10)
+iris_tsne5 <- Rtsne(unique_iris[, 1:4], perplexity = 30, max_iter = 1000)
+iris_tsne6 <- Rtsne(unique_iris[, 1:4], perplexity = 30, max_iter = 10000)
+
+# different levels of perplexity
+par(mfrow = c(2, 2))
+plot(iris_tsne4$Y, col = unique_iris$Species)
+plot(iris_tsne5$Y, col = unique_iris$Species)
+plot(iris_tsne6$Y, col = unique_iris$Species)
+```
+
+An iteration of 10 is clearly not enough (the default is 1000), but the 1000 and 10000 ones seem to be pretty good.  At this point it appears to be a matter of preference.  Let's try also applying `pca_center` and `pca_scale` to it (note: pca_center is true by default).
+
+```{r}
+iris_tsne7 <- Rtsne(unique_iris[, 1:4], perplexity = 30, max_iter = 10000, pca_center = TRUE, pca_scale = TRUE)
+
+par(mfrow = c(2, 1))
+plot(iris_tsne6$Y, col = unique_iris$Species)
+plot(iris_tsne7$Y, col = unique_iris$Species)
+```
+
+Scaling does reduce the range in the x and y axes which is nicer, but it probably doesn't change this too much.  Clearly the moral of this section is to play around with your parameters before deciding on a specific level.
+
+```{r}
+plot(iris_tsne7$Y, col = unique_iris$Species)
+```
