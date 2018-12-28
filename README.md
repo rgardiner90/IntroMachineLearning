@@ -1,2 +1,2 @@
 # IntroMachineLearning
-An overview of Machine Learning Basics
+An overview of both Supervised and Unsupervised Machine Learning. 
