@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+
 ```
 
 Part of this material is gathered from Laurent Gatto's workshop on ["An Introduction to Machine Learning with R"](https://github.com/rgardiner90/IntroMachineLearning.git)
@@ -66,24 +68,24 @@ dim(churnTest) # test data
 
 
 
-## Unsuperivsed Learning
+## Unsupervised Learning
 
-As mentioned above, unsupervised learning is the most common route when there is no labeled data (which happens a lot), and the algorithm focuses on detecting structures within the unlabelled data.  There are two general types of UML:
+As mentioned above, unsupervised learning is the most common route when there is no labeled data (which happens a lot), and the algorithm focuses on detecting structures within the unlabeled data.  There are two general types of UML:
 
 - Clustering: find homogeneous subgroups within the data, grouping is based on distance between observations
-- Dimensionality reduction: identify pattersn in the features of hte data.   This is usually done to allow the researcher to visualize the data or do pre-processing for supervised learning.
+- Dimensionality reduction: identify pattersn in the features of the data.   This is usually done to allow the researcher to visualize the data or do pre-processing for supervised learning.
 
 One of the most challenging aspects of UML is that there is no single goal.
 
 ### k-means clustering
 
-The goal of k-means clustering is to partion *n* observations into a fixd number of *k* clusters.  The algorithm works to find homogenous clusters given the parameters.
+The goal of k-means clustering is to partition *n* observations into a fixed number of *k* clusters.  The algorithm works to find homogenous clusters given the parameters.
 
 the basic code is:
 ```{r}
 # stats::kmeans(x, centers = 3, nstart = 10)
 ```
-Where `x` is the data matrix, `centers` is the number of clusters, and `nstart` is hte random component that can be repeated a number of times to improve the returned model.  
+Where `x` is the data matrix, `centers` is the number of clusters, and `nstart` is the random component that can be repeated a number of times to improve the returned model.  
 
 Let's try with the following:
 
@@ -146,11 +148,11 @@ gridExtra::grid.arrange(a, b, c)
 
 #### Model Selection
 
-Random initialization can lead to different clustering results.  When k=means is run multiple times, the best outcome (the one with the smallest total within cluster sum of squares) is selected.  The total within sum of squares is caculatd as, for each cluster, calculated the squared euclidean distance from observation to the center of the cluster for each observation.  Total all distances.
+Random initialization can lead to different clustering results.  When k=means is run multiple times, the best outcome (the one with the smallest total within cluster sum of squares) is selected.  The total within sum of squares is calculated as, for each cluster, calculated the squared euclidean distance from observation to the center of the cluster for each observation.  Total all distances.
 
 That lowest within cluster sum of squares is called the local minimum, though we might not be able to get a global minimum.
 
-Run multiple kmeans on the data with more than 1 iteration and see if you get the same reulsts:
+Run multiple kmeans on the data with more than 1 iteration and see if you get the same results:
 ```{r}
 c2 <- kmeans(x = iris_new, 3, nstart = 10) # iteration = 10
 c3 <- kmeans(x = iris_new, 3, nstart = 10) 
@@ -175,8 +177,8 @@ table(c4$cluster, c5$cluster) # gives it different names, but same results
 Simple steps:
 
 1 run k-means at different levels of clustering
-2 Reocrd the toal within sum of squares for each clustering
-3 CLoose k at the *elbow* position (imagine an arm, find the elbow and that is the best)
+2 Record the total within sum of squares for each clustering
+3 Choose k at the *elbow* position (imagine an arm, find the elbow and that is the best)
 
 The elbow is kind of a soft rule.  To me it seems like where you start getting real diminishing returns
 
@@ -203,9 +205,9 @@ Looks like it could be 3 or 4 here (though we know that 3 is likely the best)
 
 ## Hierarchical Clustering
 
-How does it work?  First it starts by assigning each of the n point its own cluster.  Then it iterates.  FIrst it finds the two nearest clusters and joins the together.  This leads to n-1 clusters.  Then they continue merging clusters until all are grouped into a single cluster.
+How does it work?  First it starts by assigning each of the n point its own cluster.  Then it iterates.  First it finds the two nearest clusters and joins the together.  This leads to n-1 clusters.  Then they continue merging clusters until all are grouped into a single cluster.
 
-The results of hierarchical clustering are typically shown along with a dendogram wehre hte distance between the clusters is proportional to the branch length.
+The results of hierarchical clustering are typically shown along with a dendogram where the distance between the clusters is proportional to the branch length.
 
 How to do this in R?
 
@@ -221,9 +223,9 @@ plot(hcl)
 ```
 
 
-After we have produced the results, we need to *cut the tree (dendogram)* at a specific heigh to define the clusters.  In the example above, we could decide to cut 
+After we have produced the results, we need to *cut the tree (dendogram)* at a specific height to define the clusters.  In the example above, we could decide to cut 
 
-1 around a speicific height, like 1.5.
+1 around a specific height, like 1.5.
 2 to get a certain number of clusters, k = 2 for instance
 
 All of this is done with the cutree function
@@ -279,7 +281,7 @@ There are obvious advantages for each one.  K-means is generally faster than hie
 
 ## Pre-processing
 
-Both unsupervised and supervised ML is sensitive to differnt scales.  A typical way to pre-process the data is to scale it or apply principal component analysis (next section).  Scaling means that all the columns will have a mean of 0 and a standard deviation of 1.  Scaling can be done with the `scale` function.  
+Both unsupervised and supervised ML is sensitive to different scales.  A typical way to pre-process the data is to scale it or apply principal component analysis (next section).  Scaling means that all the columns will have a mean of 0 and a standard deviation of 1.  Scaling can be done with the `scale` function.  
 
 Example: use the `scale` function to scale the data in mtcars.  Run hierarchical clustering on both the original and the scaled to see how that changes the output.
 
@@ -303,19 +305,19 @@ plot(mtcars_scaled_hcl, main = "scaled")
 ```
 
 
-There are clear differences between the two.  As the same suggests, pre-processing is done as a preliminary practice that will make later analysis more efficient.  The method of scaling is only one way to pre-process the data (also called normalization).  Other techniques includes data: cleaning, instance selection, transofrmation, feature extration, and selection.  Cleaning is fixing bad values (i.e. men can't be pregnant but the raw data may have that).  Feature extraction will be covered more (I believe) in the Principal Components Analysis section.  
+There are clear differences between the two.  As the same suggests, pre-processing is done as a preliminary practice that will make later analysis more efficient.  The method of scaling is only one way to pre-process the data (also called normalization).  Other techniques includes data: cleaning, instance selection, transformation, feature extraction, and selection.  Cleaning is fixing bad values (i.e. men can't be pregnant but the raw data may have that).  Feature extraction will be covered more (I believe) in the Principal Components Analysis section.  
 
 
 ## Principal Component Analysis (PCA)
 
-PCA is widely used (and considered very versitile) that is used for: finding strucutre in features, pre-processing, and aiding in visualization.  THe basic idea behind deminsionality reduction is to transform the data into a new space that "summarise properties of the whole dataset along a reduced number of dimensions.  These are the nidela candidates to visualize the data laong these reduced number of informative dimensions."
+PCA is widely used (and considered very versitile) that is used for: finding structure in features, pre-processing, and aiding in visualization.  The basic idea behind dimensionality reduction is to transform the data into a new space that "summarise properties of the whole dataset along a reduced number of dimensions.  These are the nidela candidates to visualize the data laong these reduced number of informative dimensions."
 
 ### How Does it work?
 
-PCA is a technique that transofrms the original n-dimensional data into a new n-dimensional space.
+PCA is a technique that transforms the original n-dimensional data into a new n-dimensional space.
 
 - These new dimension are linear combinations of the original data (meaning they are composed of proportions of the original variables)
-- Along tehse new dimensions, called **principal components**, the data expresses most of its variablility along the first PC, then second, ...
+- Along these new dimensions, called **principal components**, the data expresses most of its variablility along the first PC, then second, ...
 - Principal components are orthogonal to each other (not correlated).
 
 
@@ -336,9 +338,9 @@ iris_pca <- prcomp(iris[, -5]) # not doing this with the species variable
 summary(iris_pca)
 ```
 
-This summary shows us that along PC1 alone, we are able to retain 92% of hte total variability in the data.
+This summary shows us that along PC1 alone, we are able to retain 92% of the total variability in the data.
 
-Now we can visualize the results.  A biplot shows all of hte original points re=mapped (rotated) along the first two PCs as well as the original features as vectors along the same PCs.  Feature vectors that are in teh same idrection in PC space are also correlated in the original data space.  
+Now we can visualize the results.  A biplot shows all of the original points re=mapped (rotated) along the first two PCs as well as the original features as vectors along the same PCs.  Feature vectors that are in the same direction in PC space are also correlated in the original data space.  
 
 ```{r}
 biplot(iris_pca)
@@ -367,14 +369,14 @@ plot(iris_pca$x[, 3:4], col = iris$Species)
 
 ### Notes on PCA
 
-PCA cannot deal with missing values which means it will simply drop those values.  That may not be a problem if the proportion of missing data is small, but it should be considered.  Second, be careful of using UML with categorical data because the computer will generally assume the interger provided to represent the category actually has some meaning (i.e., there is ordering and distance matters). You should either drop them before doing UML or create dummy variables.
+PCA cannot deal with missing values which means it will simply drop those values.  That may not be a problem if the proportion of missing data is small, but it should be considered.  Second, be careful of using UML with categorical data because the computer will generally assume the intenger provided to represent the category actually has some meaning (i.e., there is ordering and distance matters). You should either drop them before doing UML or create dummy variables.
 
 
 
 ## t-Distributed Stochastic Neighbor Embedding
 
 
-The t-Distributed Stochastic Neighbour Embedding (t-SNE) is a non-linear dimensionality reduction technique, that different regions of the data space will be sujbected to different transformations.  T-SNE will compress small distances, thus bringing close neighbr together, and will ignore distances.  **It is particularly well suited for very high dimensional data**. t-SNE is especially popular in machine learning because it is very effective at creating impressive two-dimensional "maps" from data with hundreds or even thousands of dimensions, [see this link for more information](https://distill.pub/2016/misread-tsne/). 
+The t-Distributed Stochastic Neighbour Embedding (t-SNE) is a non-linear dimensionality reduction technique, that different regions of the data space will be subjected to different transformations.  T-SNE will compress small distances, thus bringing close neighbr together, and will ignore distances.  **It is particularly well suited for very high dimensional data**. t-SNE is especially popular in machine learning because it is very effective at creating impressive two-dimensional "maps" from data with hundreds or even thousands of dimensions, [see this link for more information](https://distill.pub/2016/misread-tsne/). 
 
 In R, we can use the `Rtsne` function from the `Rtsne` package.  First, though, we have to remove any duplicates.
 
@@ -388,11 +390,11 @@ irist_tsne <- Rtsne(unique_iris[, 1:4])
 plot(irist_tsne$Y, col = unique_iris$Species)
 ```
 
-If we wanted to, we could have centered and scaled the data before running the t-SNE function (see the `pca_center` and `pca_scale` arguments).  This algorithm is stochastic, and will producedifferent results for each repeition.
+If we wanted to, we could have centered and scaled the data before running the t-SNE function (see the `pca_center` and `pca_scale` arguments).  This algorithm is stochastic, and will produce different results for each repitition.
 
 ### Parameter tuning
 
-While t-SNE is popular, it can be confusing to properly set and interpret the model.  Part of this comes from the parameter tuining.  t-SNE have two important parameters that can substantialy influence the clustering of data:
+While t-SNE is popular, it can be confusing to properly set and interpret the model.  Part of this comes from the parameter tuning.  t-SNE have two important parameters that can substantially influence the clustering of data:
 
 - Perplexity: balancing global and local aspects of the data
 - Iterations: number of iterations before the clustering is stopped.
@@ -444,18 +446,18 @@ plot(iris_tsne7$Y, col = unique_iris$Species)
 
 ## Supervised Learning
 
-The difference between Unsupervised machine learning (UML) versus Supervised machine learning (SML) is that SML has labelled example inputs, which indicate the desired output (basically the DV).  There are two main groups of Supervised Machine Learning:
+The difference between Unsupervised machine learning (UML) versus Supervised machine learning (SML) is that SML has labeled example inputs, which indicate the desired output (basically the DV).  There are two main groups of Supervised Machine Learning:
 
 - Classification: the output is qualitative
 - Regression: the output is quantitative
 
 ### K nearest neighbors (kNN)
 
-Let's use a common SML algorithm, k nearest neighbors, to classify the iris flower dataset.  To do this you will use the `knn` function from the class package.  KNN works by directly measuring the euclidean distance beteen observations and infer the class of unlabelled data from teh class of its nearest neighbor.
+Let's use a common SML algorithm, k nearest neighbors, to classify the iris flower dataset.  To do this you will use the `knn` function from the class package.  KNN works by directly measuring the euclidean distance between observations and infer the class of unlabeled data from the class of its nearest neighbor.
 
 In most ML processes there are two steps: train and predict.  In KNN these two steps are combined into a single function called `knn`.  
 
-Let's draw a set of 50 random iris observations to train the moel and predict the species of another set of 50 randomly chosen flowers.  The `knn` function takes the training data, the new data (to be inferred) and the labels of the training data, and returns (be default) the predicted class.
+Let's draw a set of 50 random iris observations to train the model and predict the species of another set of 50 randomly chosen flowers.  The `knn` function takes the training data, the new data (to be inferred) and the labels of the training data, and returns (be default) the predicted class.
 
 ```{r}
 set.seed(12)
@@ -483,13 +485,13 @@ mean(knnres == iris$Species[new])
 
 Both of these show that the model does a pretty great job of classifying the data.  
 
-One key argument we have omitted from hte `knn` function is the parameter *k*.  The value *k* defines how many nearest neighbors will be considered to assign a class to a new unlabelled observation.  We can look at the arguments for a function by doing the following:
+One key argument we have omitted from the `knn` function is the parameter *k*.  The value *k* defines how many nearest neighbors will be considered to assign a class to a new unlabeled observation.  We can look at the arguments for a function by doing the following:
 
 ```{r}
 args(knn)
 ```
 
-As we can see, the default for *k* is 1.  But is this a good value?  Would we prefer to look at more neighbors and infer the new clas using a vote based on more lables?
+As we can see, the default for *k* is 1.  But is this a good value?  Would we prefer to look at more neighbors and infer the new class using a vote based on more lables?
 
 #### Challenge
 
@@ -512,4 +514,57 @@ A k = 5 did slightly worse than our k = 1.  Now lets try the same model, but wit
 knnres_3 <- knn(iris[train, -5], iris[new, -5], iris$Species[train], k = 5, prob = TRUE)
 
 table(attr(knnres_3, "prob"))
+```
+
+
+## Model Performance
+
+In supervised machine learning we have the outcome and thus know what we want to compute.  This is helpful in quantifying how well our model performs.  For regression, we commonly use the *root mean squared error* (RMSE) which is what linear regression (lm) seeks to minimize.  For classification, we will use the model prediction accuracy.
+
+In most cases we don't want to calculate these metrics using the same observations we used to calculate the model.  This approach, *in-sample error*, leads to an overly optimistic assessment of our model.  Instead we prefer *out-of-sample error* which is new done on new data (training/testing data).  We will use the `caret` (Classification And REgression Training) package for most of this.
+
+The code chunk below uses the `lm` function on the diamonds dataset.
+
+```{r}
+library(caret)
+library(modelr)
+
+model <- lm(price ~ ., diamonds)
+
+# tidy formatted way
+model_pred <- diamonds %>%
+  add_predictions(model) %>%
+  add_residuals(model)
+  
+rmse_in <- sqrt(mean((model_pred$pred - model_pred$price)^2))
+rmse_in
+```
+
+Now let's repeat the exercise, but calculate the out-of-sample RMSe.  To do this we need to do a 80/20 split of the data, using 80% to to fit our model to predict the target variable (this is called the training data), the price, on the 20% unseen data (the testing data).  
+
+```{r}
+set.seed(42)
+ntest <- nrow(diamonds) * .8
+test <- sample(nrow(diamonds), ntest)
+model2 <- lm(price ~., data = diamonds[test, ])
+
+p <- predict(model, diamonds[-test, ])
+error <- p - diamonds$price[-test]
+
+rmse_out <- sqrt(mean(error^2))
+rmse_out
+```
+
+This model shows that our rmse_in was slightly optimistic, though not much so.  This is likely because of the larger size of the diamonds dataset.  In smaller models, the presence of a single outlier can dramatically change the RMSE.  In that case, we need a more robust method.
+
+
+
+
+
+
+
+
+```{r}
+library(spelling)
+spell_check_files("IntroMachineLearning.Rmd")
 ```
