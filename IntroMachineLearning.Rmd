@@ -558,9 +558,61 @@ rmse_out
 This model shows that our rmse_in was slightly optimistic, though not much so.  This is likely because of the larger size of the diamonds dataset.  In smaller models, the presence of a single outlier can dramatically change the RMSE.  In that case, we need a more robust method.
 
 
+### Cross-validation
+
+Rather than using a single training/testing split, we can systematize the process to produce mutiple, different, out-of-sample train/test splits which lead to a better estimate of the out-of-sample RMSE.  The figure below show the corss validation procedure with 3 folds (typically 10 is done if the data permits).  We first split the full dataset into 3 **random** and completely complementary folds so that each data point appears exactly once in each fold.  This means that the total test size is equal to the full dataset, but is composed of out-of-sample predictions.  
 
 
 
+![](crossvalidation.png)  
+
+After cross-validation, all models used within each fold are discarded, and a new model is built using the whole dataset with the best model parameters (meaning one that is generalized over all folds). This is rather time consuming, but essential!  Note that it is important to maintain the class proportions within the different folds, i.e. respect hte propotion of the different classes in the original data.  Luckily all of this is taken care of when using the `caret` package.
+
+The process is as follows:
+
+1. Set a random seeed to make it reproducable (not necessary in all circumstances)
+2. Specify the method (the learning algorithm) we wnat to use.  Here we are doing `lm`, but there are tons of different ones out there
+3. Set the out-of-sample training procedure to 10-fold cross validation (method = "cv", and number = 10).  To make the output more readible, we set the verbosity flag to FALSE.
+
+```{r}
+set.seed(12)
+model_cross <- train(price ~ ., diamonds,
+               method = "lm",
+               trControl = trainControl(method = "cv",
+                                        number = 10,
+                                        verboseIter = FALSE))
+
+model_cross
+```
+
+Once we have trained out model, we can directly use this `train` object as input to predict:
+
+```{r}
+diamonds_cross <- diamonds
+
+p_cross <- predict(model_cross, diamonds_cross)
+error <- p_cross - diamonds_cross$price
+rmse_xval <- sqrt(mean(error^2))
+rmse_xval
+```
+
+Let's do another example using the `Boston` dataset.  Do a 10-fold cross-validation and use it to predict the median value of owner-occupied homes in Boston.
+
+```{r}
+set.seed(12)
+model_cross_Boston <- train(medv ~ ., Boston,
+               method = "lm",
+               trControl = trainControl(method = "cv",
+                                        number = 10,
+                                        verboseIter = FALSE))
+
+model_cross_Boston
+
+Boston_cross <- Boston
+
+p_cross_Boston <- predict(model_cross_Boston, Boston_cross)
+sqrt(mean(p_cross_Boston - Boston_cross$medv)^2)
+```
 
 
 
