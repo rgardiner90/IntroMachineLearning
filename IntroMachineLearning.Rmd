@@ -615,6 +615,87 @@ sqrt(mean(p_cross_Boston - Boston_cross$medv)^2)
 ```
 
 
+## Classification Performance
+
+Above we have used the RMSE to assess the performance of our regression model.  When using a classification algorithm, we want to assess its accuracy to do so.
+
+### Confusion Matrix
+
+Instead of calculating an error between predicted value and known vlaue, in classification we will directly compare the predicted class matches to the known label. To do so, rather than calculating the man accuracy as we did aove, in the introductory kNN example, we can calculate a *Confusion Matrix*.  
+
+A confusion matrix contracts predictions to actual results.  Correct results are called *true positives (TP)* and *true negatives (TN)*.  The false results are *false negatives (FN)* and *false positive (FP)*.  The values that populate this table will depend on a cutoff that we have set to define whether the classifier should predict yes or no.  Instuitively, we might wnat to use 0.5 as a threshold, and assign every result with a probability > 0.5 as a Yes and No otherwise.
+
+Let us experiment this with the `Sonar` dataste, and see if we can differentiate mines from rocks using a logistic classification model.
+
+```{r}
+library("mlbench")
+data(Sonar)
+
+## 60/40 split
+tr_sonar <- sample(nrow(Sonar), round(nrow(Sonar) * 0.6))
+train_sonar <- Sonar[tr_sonar, ]
+test_sonar <- Sonar[-tr_sonar, ]
+```
+
+```{r}
+model <- glm(Class ~ ., data = train_sonar, family = "binomial")
+p <- predict(model, test_sonar, type = "response")
+summary(p)
+```
+
+Now that we have fit the model, we can do the cutoff and create the confusion matrix.
+```{r}
+cl <- ifelse(p > 0.5, "M", "R") # M = Mine, R = Rock
+cl <- as.factor(cl) # had to do this to get the confusionMatrix to work later on
+table(cl, test_sonar$Class)
+```
+
+The results are not very promising for us here.  We are wrong, much more often than we are correct.
+
+The caret package offers it's own, nad more informative function to calcualte a confusion matrix:
+
+```{r}
+confusionMatrix(cl, test_sonar$Class) # keep getting error message
+```
+
+Now try this with thresholds of 0.1, and 0.9
+
+```{r}
+cl_1 <- ifelse(p > 0.9, "M", "R")
+cl_1 <- as.factor(cl_1)
+confusionMatrix(cl_1, test_sonar$Class)
+```
+
+```{r}
+cl_2 <- ifelse(p > 0.1, "M", "R")
+cl_2 <- as.factor(cl_2)
+confusionMatrix(cl_2, test_sonar$Class)
+```
+
+### Receiver Operating Characteristic (ROC) Curve
+
+The last section we used the 0.5 level as a threshold.  We could easily have done a lower threshold to catch more mines with less certainty or done a higher threshold to catch fewer mines with more certainty. This is really a balancing act between TP and FP rates.  We need some sort of cost-benefit analysis, and the solution will really depend on each scenario.
+
+One solution would be to try with different classification thresholds.  Instead of insepcting numerous confusion matrices (which would be overwhelming), it is possible to auotmate the calculation of the TP and FP rates at each threshold and visualize the results along a ROC curve.  This can be done with colAUC function from the caTools package.
+
+```{r}
+library(caTools)
+
+colAUC(p, test_sonar[["Class"]], plotROC = TRUE)
+```
+
+A few things to know from the print out:
+
+- x axis: FP rate (1 - specificity)
+- y axis: TP rate (sensitivity)
+- each point along hte curve representas a confusion matrix for a given threshold.
+
+In addition to the graph, the `colAUC` function returns the area under the curve (AUC) model accuracy metric.  This is a single number metric, summarising the model performancy along all possible thresholds:
+
+- an AUC of 0.5 corresponds to a random model
+- values > 0.5 do better than a random guess
+- A value of 1 represents a perfect model.
+- A value of 0 represents a model that is always wrong.
 
 ```{r}
 library(spelling)
