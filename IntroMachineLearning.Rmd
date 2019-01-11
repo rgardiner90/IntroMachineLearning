@@ -721,6 +721,34 @@ example1 <- train(Class ~ ., Sonar,
 print(example1)
 ```
 
+## Random Forest
+
+Random forests are incredibly popular because they are accurate, non-linear, and robust to over-fitting.  They do require, however, hyperparameter tuning done manually.  Building a random forest starts by generating a high number of decision trees.  A single tree isn't very accurate, but many trees built using differen inputs (with bootsrapped inputs, features and observations) enable to explore a broad search space and, once combined, produce accurate models, a technique called boostrap aggregation or bagging.
+
+### Decision trees
+
+One of the great advantages of decision trees is that they make a complex decision simpler by breaking it down into smaller, simpler decisions using divide-and-conquer strategy.  They basically identify a set of if-else conditions that split the data according to the values of the features.
+
+```{r}
+library(rpart) ## recursive partitioning
+tree <- rpart(Class ~ ., data = Sonar,
+              method = "class")
+library(rpart.plot)
+rpart.plot(tree)
+```
+
+
+```{r}
+tree_p <- predict(tree, Sonar, type = "class")
+table(tree_p, Sonar$Class)
+```
+
+Decision trees choose splits based on most honogenous partions, and lead to smaller and more homogeneous partitions over their iterations.  
+
+An issue, though, with singel decision trees is that they can grow, and become large and complex with many branches, which corresponds to over-fitting.  Over-fitting models noise, rather than general patterns in the data, focusing on subtle patterns (outliers) that won't generalize.  To avoid over-fitting, individual trees are "rpuned".  Pruining can happen as a pre-condition when growing the tree, or afterwards, by pruning a large tree.
+
+- *Pre-prunning*: stop growing process, i.e. stops divid-and-conquer after a certain number of iterations (grows tree at certain predefined level), or requires a minimum number of observations in each mode to allow splitting.
+- *Post-pruning*: grow a large and complex tree, and reduce its size; nodes and branches that have a negligible effect on teh classification accuracy are removed.
 
 ```{r}
 library(spelling)
