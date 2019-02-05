@@ -7,8 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-
 ```
 
 Part of this material is gathered from Laurent Gatto's workshop on ["An Introduction to Machine Learning with R"](https://github.com/rgardiner90/IntroMachineLearning.git)
@@ -749,6 +747,81 @@ An issue, though, with singel decision trees is that they can grow, and become l
 
 - *Pre-prunning*: stop growing process, i.e. stops divid-and-conquer after a certain number of iterations (grows tree at certain predefined level), or requires a minimum number of observations in each mode to allow splitting.
 - *Post-pruning*: grow a large and complex tree, and reduce its size; nodes and branches that have a negligible effect on teh classification accuracy are removed.
+
+
+### Training a Random Forest
+
+Let's train a random forests using the `train` infrastructure from caret.
+
+```{r}
+set.seed(12)
+
+rf_model <- train(Class ~ .,
+                  data = Sonar, 
+                  method = "ranger")
+
+print(rf_model)
+```
+
+```{r}
+plot(rf_model)
+```
+
+Now to try experiment with training a random forest model like the one above, by using 5-fold corss validation and setting a `tuneLength` of 5.
+
+```{r}
+set.seed(42)
+
+rf_model_2 <- train(Class ~ .,
+                    data = Sonar,
+                    method = "ranger",
+                    tuneLength = 5,
+                    trControl = trainControl(method = "cv",
+                                             number = 5,
+                                             verboseIter = FALSE))
+plot(rf_model_2)
+```
+
+
+## Missing Data
+
+There are generally two broad ways to deal with missing data:
+
+- Drop the observations with missing values, or, if one feature contains a very high proportion of nAs, drop the feature altogether.  These approaches are only applicable when the proportion of missing values is relatively small.  Otherwise, it could lead to loosing too much data.
+- Impute missing values.
+
+### Median imputation
+
+Imputation using median of features.  This method works well if the data are missing at random.  
+
+The code below creates two variables with some missing data built in.  
+
+```{r}
+data(mtcars)
+mtcars[sample(nrow(mtcars), 10), "hp"] <- NA
+Y <- mtcars$mpg    ## target variable
+X <- mtcars[, 2:4] ## predictors
+```
+
+Here is how we would pre-process using median imputation:
+
+```{r}
+train(X, Y, preProcess = "medianImpute")
+```
+
+Imputing using caret also allows us to ompitimze the imputation based on the cross validation splits, as train will do median imputation insead each fold.
+
+
+### KNN Imputation
+
+If there is some systematic reason for the missing values, then doing median imputation will produce incorrect results.  
+
+```{r}
+train(X, Y, preProcess = "knnImpute")
+```
+
+
+
 
 ```{r}
 library(spelling)
