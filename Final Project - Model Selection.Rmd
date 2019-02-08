@@ -1,0 +1,93 @@
+---
+title: "Final Project - Model Selection"
+author: "Richard G. Gardiner"
+date: "2/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Model Selection
+
+In this section we will test the different models using the same dataset.  We will use the same features and dependent variable to give a fair comparison.  
+
+We will use the `churn` dataset.  IMPORTANT: note that only 15% of the customers churn, which will be important for later.
+
+
+```{r}
+library(C50)
+library(caret)
+data(churn)
+
+table(churnTest$churn)/nrow(churnTrain)
+```
+
+Earlier when we would create a train control object, we specified the method as "cv" and the number of folds.  Now we will use the same folds to re-use over hte multiple model training rounds.  We split the data using the `createFolds` functions, which creates a list (here a length of 5) containing the element indices for ech fold.
+
+```{r}
+data(churn)
+churnTrain <- churnTrain
+myFolds <- createFolds(churnTrain$churn, k = 5)
+str(myFolds)
+```
+
+We want to verify that the folds maintain the proportion of yes/no results
+
+```{r}
+sapply(myFolds, function(i) {
+    table(churnTrain$churn[i])/length(i)
+})
+```
+
+Now that we have verified the folds are approximately proportional, we can create a train control object to be reused consistently for different model trainings.
+
+```{r}
+controlComparison <- trainControl(
+  summaryFunction = twoClassSummary,
+  classProbs = TRUE,
+  verboseIter = TRUE,
+  savePredictions = TRUE,
+  index = myFolds
+)
+```
+
+
+### `glmnet` model
+
+```{r}
+glm_model <- train(churn ~ .,
+                   churnTrain,
+                   metric = "ROC",
+                   method = "glmnet",
+                   tuneGrid = expand.grid(
+                     alpha = 0:1,
+                     lambda = 0:10/10),
+                   trControl = controlComparison)
+
+print(glm_model)
+```
+
+```{r}
+plot(glm_model)
+```
+
+
+Below we will repeat this process with a variety of models.  using something like `caret` allows us to really test the different models to see which ones really do provide the best fit.
+
+### Random Forest Model
+
+```{r}
+rf_model <- train(churn ~ .,
+                  churnTrain,
+                  metric = "ROC", 
+                  method = "ranger",
+                  trControl = controlComparison)
+print(rf_model)
+```
+
+```{r}
+plot(rf_model)
+```
