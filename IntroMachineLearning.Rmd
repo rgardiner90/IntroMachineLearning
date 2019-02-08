@@ -821,7 +821,33 @@ train(X, Y, preProcess = "knnImpute")
 ```
 
 
+### Scaling and Centering
 
+Scaling and Centering can also be done for supervised machine learning:
+
+```{r}
+train(Class ~ .,
+      data = Sonar, 
+      preProcess = "scale")
+
+train(Class ~ .,
+      data = Sonar, 
+      preProcess = "center")
+```
+
+You can also chain together multiple processing methods such as centering, scaling, PCA.
+
+```{r}
+train(Class ~ .,
+      data = Sonar,
+      preProcess = c("center", "scale", "pca"))
+
+?preProcess
+```
+
+
+
+#### Spelling
 
 ```{r}
 library(spelling)
