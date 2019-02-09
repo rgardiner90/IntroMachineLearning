@@ -91,3 +91,38 @@ print(rf_model)
 ```{r}
 plot(rf_model)
 ```
+
+### Apply kNN model
+
+```{r}
+knn_model <- train(churn ~ .,
+                  churnTrain,
+                  metric = "ROC", 
+                  method = "knn",
+                  tuneLength = 20,
+                  trControl = controlComparison)
+print(knn_model)
+```
+
+```{r}
+plot(knn_model)
+```
+
+### Support Vector Machine Model
+
+```{r}
+# getting the different possible models in caret
+names(getModelInfo())
+
+svm_model <- train(churn ~ .,
+                  churnTrain,
+                  metric = "ROC", 
+                  method = "svmRadial",
+                  tuneLength = 10,
+                  trControl = controlComparison)
+print(svm_model)
+```
+
+```{r}
+plot(svm_model)
+```
