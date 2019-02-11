@@ -126,3 +126,22 @@ print(svm_model)
 ```{r}
 plot(svm_model)
 ```
+
+
+### Naive Bayes
+
+```{r}
+nb_model <- train(churn ~.,
+                  churnTrain,
+                  metric = "ROC",
+                  method = "naive_bayes",
+                  trControl = controlComparison)
+
+print(nb_model)
+```
+
+
+```{r}
+plot(nb_model)
+```
+
