@@ -145,3 +145,70 @@ print(nb_model)
 plot(nb_model)
 ```
 
+
+### Comparing Models
+
+Now we can use the `resamples()` function to compare models and pick the one with the highest AUC and lowest AUC standard deviation:
+
+```{r}
+model_list <- list(glmnet = glm_model,
+                   rf = rf_model,
+                   knn = knn_model,
+                   svm = svm_model,
+                   nb = nb_model)
+
+resamp <- resamples(model_list)
+
+resamp
+```
+
+
+```{r}
+summary(resamp)
+```
+
+
+It looks like the random forest model is the winner here!  But let's visualize with the `bwplot()`
+
+```{r}
+lattice::bwplot(resamp, metric = "ROC")
+```
+
+
+### Pre-Processing
+
+Now let's try to work on a model that didn't perform as well and see what pre-processing would have done.
+
+```{r}
+summary(svm_model$results$ROC)
+```
+
+```{r}
+svm_model2 <- train(churn ~ .,
+                    data = churnTrain[, c(2, 6:20)],
+                    metric = "ROC", 
+                    method = "svmRadial",
+                    preProcess = c("scale", "center", "pca"),
+                    tuneLength = 10,
+                    trControl = controlComparison)
+
+model_list <- list(svm1 = svm_model,
+                   svm2 = svm_model2)
+resamp <- resamples(model_list)
+summary(resamp)
+```
+
+```{r}
+bwplot(resamp, metric = "ROC")
+```
+
+Nothing really changed between the two.
+
+
+
+
+
+
+
+
+
