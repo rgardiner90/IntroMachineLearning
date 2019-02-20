@@ -205,9 +205,15 @@ bwplot(resamp, metric = "ROC")
 Nothing really changed between the two.
 
 
+### Make predictions for the Best Model
 
+Using the `resamples` function, choose the best model and apply it to predict the `churnTest` labels
 
+```{r}
+prediction <- predict(rf_model, churnTest)
 
+confusionMatrix(prediction, churnTest$churn)
+```
 
 
 
